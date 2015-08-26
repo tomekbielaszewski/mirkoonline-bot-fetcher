@@ -2,8 +2,6 @@ package org.grizz.model;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Data;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.Date;
 import java.util.List;
@@ -13,7 +11,8 @@ import java.util.List;
  */
 @Data
 public class UserActivity {
-
+    @SerializedName("id")
+    private String id;
     @SerializedName("author")
     private String nick;
     @SerializedName("date")

@@ -1,10 +1,14 @@
 package org.grizz.springconfig;
 
 import org.grizz.model.UserActivity;
+import org.grizz.service.MirkoonlineBot;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -12,20 +16,20 @@ import java.util.List;
  */
 @Configuration
 @EnableScheduling
+@ComponentScan("org.grizz")
 public class MainConfig {
+    private static final long MINUTE = 60 * 1000;
+    private static final long TIME_OFFSET = 15 * MINUTE;
 
-    @Scheduled(fixedDelay = 8 * 60 * 1000)
-    public void run() {
-        List<UserActivity> activities = getActivities();
-        List<UserActivity> filteredActivities = getFilterActivities(activities, 0l); //get activities from last x minutes
+    @Autowired
+    private MirkoonlineBot mirkoonlineBot;
 
-    }
-
-    private List<UserActivity> getFilterActivities(List<UserActivity> activities, long l) {
-        return null;
-    }
-
-    private List<UserActivity> getActivities() {
-        return null;
+    @Scheduled(fixedDelay = 8 * MINUTE)
+    public void periodicallyRun() {
+        long since = new Date().getTime() - TIME_OFFSET;
+        List<UserActivity> activities = mirkoonlineBot.getActivities();
+        List<UserActivity> filteredActivities = mirkoonlineBot.getFilteredActivities(activities, since); //get activities from last x minutes
+        List<UserActivity> uniqueActivities = mirkoonlineBot.filterDuplicatedUsernames(filteredActivities);
+        mirkoonlineBot.postResults(uniqueActivities);
     }
 }

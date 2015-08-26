@@ -4,21 +4,51 @@
   
     <name>mirkoonline-fetcher</name>
     <groupId>org.grizz</groupId>
-    <artifactId>mirkoonline-bot</artifactId>
+    <artifactId>mirkoonline-bot-fetcher</artifactId>
     <version>0.2.3-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.1.4.RELEASE</version>
+        <version>1.2.5.RELEASE</version>
+        <relativePath/>
+        <!-- lookup parent from repository -->
     </parent>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>1.8</java.version>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>wykop.pl-java-sdk-mvn-repository</id>
+            <url>https://raw.github.com/Crozin/Wykop.pl-Java-SDK/mvn-repo/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>
   
     <dependencies>
         <dependency>
+            <groupId>com.crozin</groupId>
+            <artifactId>com.crozin.wykop.sdk</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>18.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.14.4</version>
+            <version>1.16.6</version>
             <scope>provided</scope>
         </dependency>
 
@@ -55,11 +85,9 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-batch</artifactId>
         </dependency>
-
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.11</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
