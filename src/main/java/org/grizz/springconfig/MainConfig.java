@@ -19,7 +19,7 @@ import java.util.List;
 @ComponentScan("org.grizz")
 public class MainConfig {
     private static final long MINUTE = 60 * 1000;
-    private static final long TIME_OFFSET = 15 * MINUTE;
+    private static final long TIME_OFFSET = 30 * MINUTE;
 
     @Autowired
     private MirkoonlineBot mirkoonlineBot;
