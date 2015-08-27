@@ -66,7 +66,7 @@ public class MirkoonlineBotImpl implements MirkoonlineBot {
         Set<String> nickDuplicateCheck = Sets.newHashSet();
         log.info("Filtering nickname duplicates");
         List<UserActivity> activitiesWithoutDuplicates = filteredActivities.stream()
-                .filter(a -> !nickDuplicateCheck.add(a.getNick()))
+                .filter(a -> nickDuplicateCheck.add(a.getNick()))
                 .collect(Collectors.toList());
         log.info("{} left after filtering", activitiesWithoutDuplicates.size());
         return activitiesWithoutDuplicates;
