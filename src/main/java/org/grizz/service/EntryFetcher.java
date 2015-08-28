@@ -8,5 +8,5 @@ import java.util.List;
  * Created by Grizz on 2015-08-26.
  */
 public interface EntryFetcher {
-    List<UserActivity> page(int i);
+    List<UserActivity> getPage(int i);
 }

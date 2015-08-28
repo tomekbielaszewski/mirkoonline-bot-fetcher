@@ -24,7 +24,7 @@ public class EntryProviderImpl implements EntryProvider {
     public List<UserActivity> getPages(int amountOfPages) {
         List<UserActivity> activities = IntStream.range(0, amountOfPages)
                 .parallel()
-                .mapToObj(page -> entryFetcher.page(page))
+                .mapToObj(page -> entryFetcher.getPage(page))
                 .flatMap(activitiesPage -> activitiesPage.stream())
                 .collect(Collectors.toList());
 

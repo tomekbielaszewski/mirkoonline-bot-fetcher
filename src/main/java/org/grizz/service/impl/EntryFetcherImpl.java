@@ -1,13 +1,15 @@
 package org.grizz.service.impl;
 
-import com.crozin.wykop.sdk.Application;
 import com.crozin.wykop.sdk.Command;
 import com.crozin.wykop.sdk.Session;
+import com.crozin.wykop.sdk.exception.ConnectionException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.grizz.model.UserActivity;
 import org.grizz.service.EntryFetcher;
-import org.springframework.beans.factory.annotation.Value;
+import org.grizz.service.SessionProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -16,30 +18,29 @@ import java.util.List;
 /**
  * Created by Grizz on 2015-08-26.
  */
+@Slf4j
 @Service
 public class EntryFetcherImpl implements EntryFetcher {
-    @Value("${mirko.app.key}")
-    private String APP_KEY;
-    @Value("${mirko.secret.key}")
-    private String SECRET_KEY;
-//    @Value("${mirko.account.key}")
-//    private String ACCOUNT_KEY;
+    @Autowired
+    private SessionProvider sessionProvider;
 
     @Override
-    public List<UserActivity> page(int page) {
+    public List<UserActivity> getPage(int page) {
         Gson gson = new GsonBuilder()
                 .setDateFormat("yyyy-MM-dd HH:mm:ss") //"date":"2014-11-19 23:55:21",
                 .create();
-        Session session = getSession();
-        String entriesJSON = session.execute(getMikroblogLatestCommand(page));
-        UserActivity[] userActivities = gson.fromJson(entriesJSON, UserActivity[].class);
+        UserActivity[] userActivities = null;
+
+        try {
+            Session session = sessionProvider.getSession();
+            String entriesJSON = session.execute(getMikroblogLatestCommand(page));
+            userActivities = gson.fromJson(entriesJSON, UserActivity[].class);
+        } catch (ConnectionException e) {
+            log.warn("Current app-key is exhausted - switching...");
+            getPage(page);
+        }
 
         return Arrays.asList(userActivities);
-    }
-
-    private Session getSession() {
-        Application app = new Application(APP_KEY, SECRET_KEY);
-        return app.openSession();
     }
 
     private Command getMikroblogLatestCommand(Integer page) {

@@ -24,7 +24,7 @@ public class MainConfig {
     @Autowired
     private MirkoonlineBot mirkoonlineBot;
 
-    @Scheduled(fixedDelay = 8 * MINUTE)
+    @Scheduled(fixedDelay = 10 * MINUTE)
     public void periodicallyRun() {
         long since = new Date().getTime() - TIME_OFFSET;
         List<UserActivity> activities = mirkoonlineBot.getActivities();
