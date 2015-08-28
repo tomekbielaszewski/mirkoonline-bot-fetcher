@@ -31,8 +31,6 @@ public class SessionProviderImpl implements SessionProvider {
     @PostConstruct
     private void init() {
         List<KeyPair> keysList = Lists.newArrayList();
-        keysIterator = Iterables.cycle(keysList).iterator();
-
         String publicKey;
         String privateKey;
         int counter = 1;
@@ -43,11 +41,13 @@ public class SessionProviderImpl implements SessionProvider {
             keysList.add(new KeyPair(publicKey, privateKey));
             counter++;
         }
+        keysIterator = Iterables.cycle(keysList).iterator();
+
         log.info("Loaded {} app-keys", counter - 1);
     }
 
     @Override
-    public Session getSession() {
+    public synchronized Session getSession() {
         KeyPair keys = keysIterator.next();
         Application app = new Application(keys.publicKey, keys.getPrivateKey());
         return app.openSession();

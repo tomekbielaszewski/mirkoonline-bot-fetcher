@@ -37,7 +37,7 @@ public class EntryFetcherImpl implements EntryFetcher {
             userActivities = gson.fromJson(entriesJSON, UserActivity[].class);
         } catch (ConnectionException e) {
             log.warn("Current app-key is exhausted - switching...");
-            getPage(page);
+            return getPage(page);
         }
 
         return Arrays.asList(userActivities);
