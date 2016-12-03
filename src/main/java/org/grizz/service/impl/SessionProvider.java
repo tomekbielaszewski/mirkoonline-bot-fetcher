@@ -6,7 +6,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.grizz.service.SessionProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -15,12 +14,9 @@ import javax.annotation.PostConstruct;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Created by tomasz.bielaszewski on 2015-08-28.
- */
 @Slf4j
 @Service
-public class SessionProviderImpl implements SessionProvider {
+public class SessionProvider {
     private final static String PUBLIC_KEY = "mirko.key.public.";
     private final static String PRIVATE_KEY = "mirko.key.secret.";
     private Iterator<KeyPair> keysIterator;
@@ -46,7 +42,6 @@ public class SessionProviderImpl implements SessionProvider {
         log.info("Loaded {} app-keys", counter - 1);
     }
 
-    @Override
     public synchronized Session getSession() {
         KeyPair keys = keysIterator.next();
         Application app = new Application(keys.publicKey, keys.getPrivateKey());

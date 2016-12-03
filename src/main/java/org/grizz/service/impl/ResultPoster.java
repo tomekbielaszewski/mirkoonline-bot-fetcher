@@ -4,18 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.fluent.Form;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
-import org.grizz.service.ResultPoster;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
-/**
- * Created by Grizz on 2015-08-26.
- */
 @Slf4j
 @Service
-public class ResultPosterImpl implements ResultPoster {
+public class ResultPoster {
     @Value("${keeper.url}")
     private String keeperUrl;
     private String keeperAddEntryResourceUrl = "/entries";
@@ -30,7 +26,6 @@ public class ResultPosterImpl implements ResultPoster {
     @Value("${keeper.password}")
     private String keeperPassword;
 
-    @Override
     public void post(int result) {
         login(keeperUsername, keeperPassword);
         addEntry(result);

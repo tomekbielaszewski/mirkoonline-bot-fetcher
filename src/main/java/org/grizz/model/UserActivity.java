@@ -2,14 +2,13 @@ package org.grizz.model;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Data;
+import lombok.ToString;
 
 import java.util.Date;
 import java.util.List;
 
-/**
- * Created by Grizz on 2014-07-23.
- */
 @Data
+@ToString
 public class UserActivity {
     @SerializedName("id")
     private String id;

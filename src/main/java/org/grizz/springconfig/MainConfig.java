@@ -2,7 +2,7 @@ package org.grizz.springconfig;
 
 import lombok.extern.slf4j.Slf4j;
 import org.grizz.model.UserActivity;
-import org.grizz.service.MirkoonlineBot;
+import org.grizz.service.impl.MirkoonlineBot;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -13,9 +13,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.*;
 
-/**
- * Created by Grizz on 2014-07-23.
- */
 @Slf4j
 @Configuration
 @EnableScheduling
@@ -27,7 +24,7 @@ public class MainConfig {
     @Autowired
     private MirkoonlineBot mirkoonlineBot;
 
-    @Scheduled(fixedDelay = 10 * MINUTE)
+    @Scheduled(fixedDelay = 5 * MINUTE)
     public void periodicallyRun() {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<Void> future = executor.submit(new MirkoonlineCounterTask());
@@ -36,10 +33,8 @@ public class MainConfig {
             future.get(9, TimeUnit.MINUTES);
         } catch (TimeoutException e) {
             future.cancel(true);
-            log.warn("Mirkoonline task terminated at {}!", new Date().toString());
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
+            log.warn("Mirkoonline task terminated at {}! Repeating...", new Date().toString());
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
 

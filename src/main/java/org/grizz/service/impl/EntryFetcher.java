@@ -7,24 +7,18 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.grizz.model.UserActivity;
-import org.grizz.service.EntryFetcher;
-import org.grizz.service.SessionProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created by Grizz on 2015-08-26.
- */
 @Slf4j
 @Service
-public class EntryFetcherImpl implements EntryFetcher {
+public class EntryFetcher {
     @Autowired
     private SessionProvider sessionProvider;
 
-    @Override
     public List<UserActivity> getPage(int page) {
         Gson gson = new GsonBuilder()
                 .setDateFormat("yyyy-MM-dd HH:mm:ss") //"date":"2014-11-19 23:55:21",

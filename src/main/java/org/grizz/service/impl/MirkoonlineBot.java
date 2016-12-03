@@ -3,9 +3,6 @@ package org.grizz.service.impl;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.grizz.model.UserActivity;
-import org.grizz.service.EntryProvider;
-import org.grizz.service.MirkoonlineBot;
-import org.grizz.service.ResultPoster;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -17,12 +14,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * Created by Grizz on 2015-08-26.
- */
 @Slf4j
 @Service
-public class MirkoonlineBotImpl implements MirkoonlineBot {
+public class MirkoonlineBot {
     private static SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm");
 
     @Value("${mirko.amount.of.pages.to.fetch}")
@@ -34,7 +28,6 @@ public class MirkoonlineBotImpl implements MirkoonlineBot {
     @Autowired
     private ResultPoster resultPoster;
 
-    @Override
     public List<UserActivity> getActivities() {
         log.info("Getting {} pages of mikroblog entries...", amountOfPages);
         List<UserActivity> rawActivities = entryProvider.getPages(amountOfPages);
@@ -50,7 +43,6 @@ public class MirkoonlineBotImpl implements MirkoonlineBot {
         return activities;
     }
 
-    @Override
     public List<UserActivity> getFilteredActivities(List<UserActivity> activities, long since) {
         Date from = new Date(since - 1);
         log.info("Filtering all activities since {}", formatter.format(from));
@@ -61,7 +53,6 @@ public class MirkoonlineBotImpl implements MirkoonlineBot {
         return filteredActivities;
     }
 
-    @Override
     public List<UserActivity> filterDuplicatedUsernames(List<UserActivity> filteredActivities) {
         Set<String> nickDuplicateCheck = Sets.newHashSet();
         log.info("Filtering nickname duplicates");
@@ -72,7 +63,6 @@ public class MirkoonlineBotImpl implements MirkoonlineBot {
         return activitiesWithoutDuplicates;
     }
 
-    @Override
     public void postResults(List<UserActivity> activities) {
         log.info("Posting result: {}", activities.size());
         resultPoster.post(activities.size());
