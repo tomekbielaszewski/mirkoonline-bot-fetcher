@@ -1,7 +1,7 @@
 package org.grizz.service;
 
 import com.google.common.collect.Sets;
-import org.grizz.model.Tag;
+import pl.grizwold.microblog.model.Tag;
 
 import java.util.Set;
 import java.util.regex.Matcher;

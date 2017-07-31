@@ -2,13 +2,13 @@ package org.grizz.service;
 
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
-import org.grizz.model.Entry;
 import org.grizz.model.Statistics;
 import org.grizz.model.UserActivity;
 import org.grizz.service.collectors.StatisticsCollector;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import pl.grizwold.microblog.model.Entry;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

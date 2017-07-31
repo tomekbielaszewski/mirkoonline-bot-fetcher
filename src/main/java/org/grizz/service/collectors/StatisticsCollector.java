@@ -1,7 +1,7 @@
 package org.grizz.service.collectors;
 
-import org.grizz.model.Entry;
 import org.grizz.model.Statistics;
+import pl.grizwold.microblog.model.Entry;
 
 import java.util.List;
 

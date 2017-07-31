@@ -1,24 +1,56 @@
 package org.grizz.service.collectors;
 
-import org.grizz.model.Entry;
 import org.grizz.model.Statistics;
+import pl.grizwold.microblog.model.Entry;
 
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ActivityCounter implements StatisticsCollector {
     @Override
     public void collect(List<Entry> entries, Statistics statistics) {
-        long count = Stream.of(
-                entries.stream().map(e -> e.getAuthor()),
-                entries.stream().flatMap(e -> e.getVoters().stream()).map(v -> v.getAuthor()),
-                entries.stream().flatMap(e -> e.getComments().stream()).map(c -> c.getAuthor()),
-                entries.stream().flatMap(e -> e.getComments().stream()).flatMap(c -> c.getVoters().stream()).map(v -> v.getAuthor())
-        ).flatMap(Function.identity())
+        Stream<String> entriesAuthors = getEntriesAuthors(entries);
+        Stream<String> entryVotesAuthors = getEntryVotesAuthors(entries);
+        Stream<String> entryCommentsAuthors = getEntryCommentsAuthors(entries);
+        Stream<String> entryCommentVotesAuthors = getEntryCommentVotesAuthors(entries);
+
+        long count = (long) Stream.of(
+                entriesAuthors,
+                entryVotesAuthors,
+                entryCommentsAuthors,
+                entryCommentVotesAuthors)
                 .collect(Collectors.toSet())
-                .stream().count();
+                .size();
+
         statistics.put("count", count);
+    }
+
+    private Stream<String> getEntryCommentVotesAuthors(List<Entry> entries) {
+        return entries.stream()
+                .flatMap(e -> e
+                        .getComments().stream()
+                        .flatMap(c -> c
+                                .getVoters().stream()
+                                .map(v -> v.getAuthor())));
+    }
+
+    private Stream<String> getEntryCommentsAuthors(List<Entry> entries) {
+        return entries.stream()
+                .flatMap(e -> e
+                        .getComments().stream()
+                        .map(c -> c.getAuthor()));
+    }
+
+    private Stream<String> getEntryVotesAuthors(List<Entry> entries) {
+        return entries.stream()
+                .flatMap(e -> e
+                        .getVoters().stream()
+                        .map(v -> v.getAuthor()));
+    }
+
+    private Stream<String> getEntriesAuthors(List<Entry> entries) {
+        return entries.stream()
+                .map(e -> e.getAuthor());
     }
 }

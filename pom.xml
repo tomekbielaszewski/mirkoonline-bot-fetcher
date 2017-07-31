@@ -37,6 +37,14 @@
                 <updatePolicy>always</updatePolicy>
             </snapshots>
         </repository>
+        <repository>
+            <id>keeper-client-mvn-repository</id>
+            <url>https://raw.github.com/tomekbielaszewski/microblog-model/mvn-repo/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
     </repositories>
   
     <dependencies>
@@ -49,6 +57,15 @@
             <groupId>org.grizz</groupId>
             <artifactId>keeper-client</artifactId>
             <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>pl.grizwold</groupId>
+            <artifactId>microblog-model</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
         </dependency>
 
         <dependency>
