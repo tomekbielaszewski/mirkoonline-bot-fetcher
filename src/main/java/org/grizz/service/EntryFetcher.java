@@ -1,4 +1,4 @@
-package org.grizz.service.impl;
+package org.grizz.service;
 
 import com.crozin.wykop.sdk.Command;
 import com.crozin.wykop.sdk.Session;
@@ -6,7 +6,7 @@ import com.crozin.wykop.sdk.exception.ConnectionException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
-import org.grizz.model.UserActivity;
+import org.grizz.model.Entry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,16 +19,16 @@ public class EntryFetcher {
     @Autowired
     private SessionProvider sessionProvider;
 
-    public List<UserActivity> getPage(int page) {
+    public List<Entry> getPage(int page) {
         Gson gson = new GsonBuilder()
                 .setDateFormat("yyyy-MM-dd HH:mm:ss") //"date":"2014-11-19 23:55:21",
                 .create();
-        UserActivity[] userActivities = null;
+        Entry[] userActivities = null;
 
         try {
             Session session = sessionProvider.getSession();
             String entriesJSON = session.execute(getMikroblogLatestCommand(page));
-            userActivities = gson.fromJson(entriesJSON, UserActivity[].class);
+            userActivities = gson.fromJson(entriesJSON, Entry[].class);
         } catch (ConnectionException e) {
             log.warn("Current app-key is exhausted - switching...");
             return getPage(page);

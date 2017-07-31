@@ -1,8 +1,11 @@
-package org.grizz.service.impl;
+package org.grizz.service;
 
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
+import org.grizz.model.Entry;
+import org.grizz.model.Statistics;
 import org.grizz.model.UserActivity;
+import org.grizz.service.collectors.StatisticsCollector;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -12,7 +15,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -28,29 +30,29 @@ public class MirkoonlineBot {
     @Autowired
     private ResultPoster resultPoster;
 
-    public List<UserActivity> getActivities() {
-        log.info("Getting {} pages of mikroblog entries...", amountOfPages);
-        List<UserActivity> rawActivities = entryProvider.getPages(amountOfPages);
-        log.info("Downloaded {} of entries. Now flattening activites...", rawActivities.size());
-        List<UserActivity> activities = rawActivities.stream()
-                .flatMap(a ->
-                        Stream.concat(a.getVoters().stream(),
-                                a.getComments().stream()
-                                        .flatMap(comment -> comment.getVoters().stream())))
-                .collect(Collectors.toList());
-        log.info("Activities flattened. Amount {}", activities.size());
+    @Autowired
+    private List<StatisticsCollector> collectors;
 
-        return activities;
+    private Statistics statistics;
+
+    public List<Entry> getEntries() {
+        statistics = new Statistics();
+        log.info("Getting {} pages of mikroblog entries...", amountOfPages);
+        List<Entry> entries = entryProvider.getPages(amountOfPages);
+        log.info("Downloaded {} of entries.", entries.size());
+        return entries;
     }
 
-    public List<UserActivity> getFilteredActivities(List<UserActivity> activities, long since) {
+    public void collectStatistics(List<Entry> entries, long since) {
         Date from = new Date(since - 1);
         log.info("Filtering all activities since {}", formatter.format(from));
-        List<UserActivity> filteredActivities = activities.stream()
+        List<Entry> filteredActivities = entries.stream()
                 .filter(a -> a.getActivity().after(from))
                 .collect(Collectors.toList());
-        log.info("{} left after filtering", filteredActivities.size());
-        return filteredActivities;
+        //todo filter out ALL outdated activities - from bottom to the top. Comment votes, comments, entry votes, entries
+        //todo what if outdated entry has votes which fit in time period?
+        collectors.forEach(c -> c.collect(filteredActivities, statistics));
+
     }
 
     public List<UserActivity> filterDuplicatedUsernames(List<UserActivity> filteredActivities) {
@@ -65,6 +67,9 @@ public class MirkoonlineBot {
 
     public void postResults(List<UserActivity> activities) {
         log.info("Posting result: {}", activities.size());
-        resultPoster.post(activities.size());
+
+        Statistics statistics = new Statistics();
+        statistics.put("counter", activities.size());
+        resultPoster.post(statistics);
     }
 }

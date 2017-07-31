@@ -29,6 +29,14 @@
                 <updatePolicy>always</updatePolicy>
             </snapshots>
         </repository>
+        <repository>
+            <id>keeper-client-mvn-repository</id>
+            <url>https://raw.github.com/tomekbielaszewski/keeper-client/mvn-repo/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
     </repositories>
   
     <dependencies>
@@ -36,6 +44,11 @@
             <groupId>com.crozin</groupId>
             <artifactId>com.crozin.wykop.sdk</artifactId>
             <version>1.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.grizz</groupId>
+            <artifactId>keeper-client</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>

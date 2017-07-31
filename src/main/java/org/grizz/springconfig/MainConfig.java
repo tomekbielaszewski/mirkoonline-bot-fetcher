@@ -1,8 +1,9 @@
 package org.grizz.springconfig;
 
 import lombok.extern.slf4j.Slf4j;
+import org.grizz.model.Entry;
 import org.grizz.model.UserActivity;
-import org.grizz.service.impl.MirkoonlineBot;
+import org.grizz.service.MirkoonlineBot;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -45,8 +46,8 @@ public class MainConfig {
         @Override
         public Void call() throws Exception {
             long since = new Date().getTime() - TIME_OFFSET;
-            List<UserActivity> activities = mirkoonlineBot.getActivities();
-            List<UserActivity> filteredActivities = mirkoonlineBot.getFilteredActivities(activities, since); //get activities from last x minutes
+            List<Entry> entries = mirkoonlineBot.getEntries();
+            List<UserActivity> filteredActivities = mirkoonlineBot.collectStatistics(entries, since); //get activities from last x minutes
             List<UserActivity> uniqueActivities = mirkoonlineBot.filterDuplicatedUsernames(filteredActivities);
             mirkoonlineBot.postResults(uniqueActivities);
 

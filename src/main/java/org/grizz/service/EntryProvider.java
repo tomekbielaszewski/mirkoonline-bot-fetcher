@@ -1,7 +1,7 @@
-package org.grizz.service.impl;
+package org.grizz.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.grizz.model.UserActivity;
+import org.grizz.model.Entry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,8 +15,8 @@ public class EntryProvider {
     @Autowired
     private EntryFetcher entryFetcher;
 
-    public List<UserActivity> getPages(int amountOfPages) {
-        List<UserActivity> activities = IntStream.range(0, amountOfPages)
+    public List<Entry> getPages(int amountOfPages) {
+        List<Entry> activities = IntStream.range(0, amountOfPages)
                 .parallel()
                 .mapToObj(page -> entryFetcher.getPage(page))
                 .flatMap(activitiesPage -> activitiesPage.stream())

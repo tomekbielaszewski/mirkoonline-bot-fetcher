@@ -1,4 +1,4 @@
-package org.grizz.service.impl;
+package org.grizz.service;
 
 import com.crozin.wykop.sdk.Application;
 import com.crozin.wykop.sdk.Session;
