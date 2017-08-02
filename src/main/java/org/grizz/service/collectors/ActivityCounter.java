@@ -1,56 +1,75 @@
 package org.grizz.service.collectors;
 
 import org.grizz.model.Statistics;
+import org.joda.time.DateTime;
 import pl.grizwold.microblog.model.Entry;
 
 import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ActivityCounter implements StatisticsCollector {
+
     @Override
     public void collect(List<Entry> entries, Statistics statistics) {
-        Stream<String> entriesAuthors = getEntriesAuthors(entries);
-        Stream<String> entryVotesAuthors = getEntryVotesAuthors(entries);
-        Stream<String> entryCommentsAuthors = getEntryCommentsAuthors(entries);
-        Stream<String> entryCommentVotesAuthors = getEntryCommentVotesAuthors(entries);
+        Stream<DatedAuthor> entriesAuthors = getEntriesAuthors(entries);
+        Stream<DatedAuthor> entryVotesAuthors = getEntryVotesAuthors(entries);
+        Stream<DatedAuthor> entryCommentsAuthors = getEntryCommentsAuthors(entries);
+        Stream<DatedAuthor> entryCommentVotesAuthors = getEntryCommentVotesAuthors(entries);
 
-        long count = (long) Stream.of(
+        DateTime time15MinutesAgo = DateTime.now().minusMinutes(15);
+
+        Set<String> activeUsers = Stream.of(
                 entriesAuthors,
                 entryVotesAuthors,
                 entryCommentsAuthors,
                 entryCommentVotesAuthors)
-                .collect(Collectors.toSet())
-                .size();
+                .flatMap(Function.identity())
+                .filter(datedAuthor -> datedAuthor.date.isAfter(time15MinutesAgo))
+                .map(datedAuthor -> datedAuthor.author)
+                .collect(Collectors.toSet());
 
-        statistics.put("count", count);
+        statistics.put("count", activeUsers.size());
+        statistics.put("active", activeUsers);
     }
 
-    private Stream<String> getEntryCommentVotesAuthors(List<Entry> entries) {
+    private Stream<DatedAuthor> getEntryCommentVotesAuthors(List<Entry> entries) {
         return entries.stream()
                 .flatMap(e -> e
                         .getComments().stream()
                         .flatMap(c -> c
                                 .getVoters().stream()
-                                .map(v -> v.getAuthor())));
+                                .map(v -> new DatedAuthor(v.getAuthor(), v.getDate()))));
     }
 
-    private Stream<String> getEntryCommentsAuthors(List<Entry> entries) {
+    private Stream<DatedAuthor> getEntryCommentsAuthors(List<Entry> entries) {
         return entries.stream()
                 .flatMap(e -> e
                         .getComments().stream()
-                        .map(c -> c.getAuthor()));
+                        .map(c -> new DatedAuthor(c.getAuthor(), c.getDateAdded())));
     }
 
-    private Stream<String> getEntryVotesAuthors(List<Entry> entries) {
+    private Stream<DatedAuthor> getEntryVotesAuthors(List<Entry> entries) {
         return entries.stream()
                 .flatMap(e -> e
                         .getVoters().stream()
-                        .map(v -> v.getAuthor()));
+                        .map(v -> new DatedAuthor(v.getAuthor(), v.getDate())));
     }
 
-    private Stream<String> getEntriesAuthors(List<Entry> entries) {
+    private Stream<DatedAuthor> getEntriesAuthors(List<Entry> entries) {
         return entries.stream()
-                .map(e -> e.getAuthor());
+                .map(e -> new DatedAuthor(e.getAuthor(), e.getDateAdded()));
+    }
+
+    private class DatedAuthor {
+        String author;
+        DateTime date;
+
+        DatedAuthor(String author, DateTime date) {
+            this.author = author;
+            this.date = date;
+        }
     }
 }
