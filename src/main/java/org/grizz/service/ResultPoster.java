@@ -3,34 +3,37 @@ package org.grizz.service;
 import lombok.extern.slf4j.Slf4j;
 import org.grizz.keeper.client.KeeperClientFactory;
 import org.grizz.keeper.client.model.KeeperEntry;
+import org.grizz.keeper.client.resources.EntriesResourceProvider;
 import org.grizz.model.Statistics;
-import org.springframework.beans.factory.annotation.Value;
+import org.grizz.model.properties.KeeperProperties;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 public class ResultPoster {
-    @Value("${keeper.url}")
-    private String keeperUrl;
+    private final KeeperProperties keeper;
 
-    @Value("${keeper.key}")
-    private String keeperKey;
-
-    @Value("${keeper.username}")
-    private String keeperUsername;
-
-    @Value("${keeper.password}")
-    private String keeperPassword;
+    @Autowired
+    public ResultPoster(KeeperProperties keeper) {
+        this.keeper = keeper;
+    }
 
     public void post(Statistics statistics) {
-        KeeperEntry<Statistics> entry = KeeperEntry.<Statistics>builder()
-                .key(keeperKey)
-                .value(statistics)
-                .build();
+        EntriesResourceProvider entriesResource = KeeperClientFactory.create(keeper.getUrl())
+                .login(keeper.getUsername(), keeper.getPassword())
+                .entries();
 
-        KeeperClientFactory.create(keeperUrl)
-                .login(keeperUsername, keeperPassword)
-                .entries()
-                .add(entry);
+        statistics.getStats().entrySet().stream()
+                .map(stat -> KeeperEntry.builder()
+                        .key(stat.getKey())
+                        .value(stat.getValue())
+                        .build())
+                .forEach(entry -> {
+                    log.info("Posting entry under key: {}", entry.getKey());
+                    entriesResource.add(entry);
+                });
+
+        log.info("All stats posted to keeper");
     }
 }

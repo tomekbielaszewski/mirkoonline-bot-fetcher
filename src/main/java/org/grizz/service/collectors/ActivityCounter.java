@@ -1,7 +1,10 @@
 package org.grizz.service.collectors;
 
+import org.grizz.model.Configuration;
+import org.grizz.model.Counter;
 import org.grizz.model.Statistics;
 import org.joda.time.DateTime;
+import org.springframework.stereotype.Component;
 import pl.grizwold.microblog.model.Entry;
 
 import java.util.List;
@@ -10,16 +13,17 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Component
 public class ActivityCounter implements StatisticsCollector {
 
     @Override
-    public void collect(List<Entry> entries, Statistics statistics) {
+    public void collect(List<Entry> entries, Statistics statistics, Configuration configuration) {
         Stream<DatedAuthor> entriesAuthors = getEntriesAuthors(entries);
         Stream<DatedAuthor> entryVotesAuthors = getEntryVotesAuthors(entries);
         Stream<DatedAuthor> entryCommentsAuthors = getEntryCommentsAuthors(entries);
         Stream<DatedAuthor> entryCommentVotesAuthors = getEntryCommentVotesAuthors(entries);
 
-        DateTime time15MinutesAgo = DateTime.now().minusMinutes(15);
+        DateTime timeOffset = DateTime.now().minusMinutes(configuration.getCountActivitiesSinceGivenAmountOfMinutes());
 
         Set<String> activeUsers = Stream.of(
                 entriesAuthors,
@@ -27,12 +31,14 @@ public class ActivityCounter implements StatisticsCollector {
                 entryCommentsAuthors,
                 entryCommentVotesAuthors)
                 .flatMap(Function.identity())
-                .filter(datedAuthor -> datedAuthor.date.isAfter(time15MinutesAgo))
+                .filter(datedAuthor -> datedAuthor.date.isAfter(timeOffset))
                 .map(datedAuthor -> datedAuthor.author)
                 .collect(Collectors.toSet());
 
-        statistics.put("count", activeUsers.size());
-        statistics.put("active", activeUsers);
+        if (!activeUsers.isEmpty()) {
+            statistics.put("active_users", activeUsers);
+        }
+        statistics.put("mirkoonline", Counter.of(activeUsers.size()));
     }
 
     private Stream<DatedAuthor> getEntryCommentVotesAuthors(List<Entry> entries) {
