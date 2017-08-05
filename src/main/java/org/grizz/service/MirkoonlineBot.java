@@ -27,9 +27,8 @@ public class MirkoonlineBot {
     public List<Entry> getEntries(int scanEntriesSince) {
         DateTime now = DateTime.now();
         DateTime since = now.minusHours(scanEntriesSince);
-        log.info("Getting mikroblog entries since {}...", since);
 
-        //TODO Doesn't work...
+        log.info("Getting mikroblog entries since {}...", since);
         List<Entry> entries = entryRepository.findByDateAddedGreaterThan(since);
 
         log.info("Fetched {} entries.", entries.size());
