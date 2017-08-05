@@ -3,18 +3,20 @@ package org.grizz.service.collectors;
 import lombok.ToString;
 import org.grizz.model.Configuration;
 import org.grizz.model.Statistics;
+import org.grizz.service.collectors.helpers.Ranking;
+import org.grizz.service.collectors.helpers.SummingRanking;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 import pl.grizwold.microblog.model.Entry;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
 public class ActivityCounter implements StatisticsCollector {
+    private Ranking ranking = new SummingRanking();
 
     @Override
     public void collect(List<Entry> entries, Statistics statistics, Configuration configuration) {
@@ -25,7 +27,7 @@ public class ActivityCounter implements StatisticsCollector {
 
         DateTime timeOffset = DateTime.now().minusMinutes(configuration.getCountActivitiesSinceGivenAmountOfMinutes());
 
-        Set<String> activeUsers = Stream.of(
+        Stream.of(
                 entriesAuthors,
                 entryVotesAuthors,
                 entryCommentsAuthors,
@@ -33,7 +35,9 @@ public class ActivityCounter implements StatisticsCollector {
                 .flatMap(Function.identity())
                 .filter(datedAuthor -> isAfter(timeOffset, datedAuthor))
                 .map(datedAuthor -> datedAuthor.author)
-                .collect(Collectors.toSet());
+                .forEach(ranking::add);
+
+        Map<Object, Integer> activeUsers = ranking.asMap();
 
         statistics.put("active_users", activeUsers);
         statistics.put("mirkoonline", activeUsers.size());
