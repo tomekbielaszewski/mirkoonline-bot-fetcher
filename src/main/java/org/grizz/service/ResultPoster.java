@@ -5,6 +5,7 @@ import org.grizz.keeper.client.KeeperClientFactory;
 import org.grizz.keeper.client.model.KeeperEntry;
 import org.grizz.keeper.client.resources.EntriesResourceProvider;
 import org.grizz.model.Statistics;
+import org.grizz.model.Value;
 import org.grizz.model.properties.KeeperProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,7 @@ public class ResultPoster {
         statistics.getStats().entrySet().stream()
                 .map(stat -> KeeperEntry.builder()
                         .key(stat.getKey())
-                        .value(stat.getValue())
+                        .value(Value.of(stat.getKey(), stat.getValue()))
                         .build())
                 .forEach(entry -> {
                     log.info("Posting entry under key: {}", entry.getKey());

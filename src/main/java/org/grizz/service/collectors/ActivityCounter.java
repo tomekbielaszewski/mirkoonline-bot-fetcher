@@ -1,7 +1,7 @@
 package org.grizz.service.collectors;
 
+import lombok.ToString;
 import org.grizz.model.Configuration;
-import org.grizz.model.Counter;
 import org.grizz.model.Statistics;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
@@ -31,14 +31,16 @@ public class ActivityCounter implements StatisticsCollector {
                 entryCommentsAuthors,
                 entryCommentVotesAuthors)
                 .flatMap(Function.identity())
-                .filter(datedAuthor -> datedAuthor.date.isAfter(timeOffset))
+                .filter(datedAuthor -> isAfter(timeOffset, datedAuthor))
                 .map(datedAuthor -> datedAuthor.author)
                 .collect(Collectors.toSet());
 
-        if (!activeUsers.isEmpty()) {
-            statistics.put("active_users", activeUsers);
-        }
-        statistics.put("mirkoonline", Counter.of(activeUsers.size()));
+        statistics.put("active_users", activeUsers);
+        statistics.put("mirkoonline", activeUsers.size());
+    }
+
+    private boolean isAfter(DateTime timeOffset, DatedAuthor datedAuthor) {
+        return datedAuthor.date.isAfter(timeOffset);
     }
 
     private Stream<DatedAuthor> getEntryCommentVotesAuthors(List<Entry> entries) {
@@ -69,6 +71,7 @@ public class ActivityCounter implements StatisticsCollector {
                 .map(e -> new DatedAuthor(e.getAuthor(), e.getDateAdded()));
     }
 
+    @ToString
     private class DatedAuthor {
         String author;
         DateTime date;
