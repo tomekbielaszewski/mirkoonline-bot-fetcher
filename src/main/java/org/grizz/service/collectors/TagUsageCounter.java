@@ -8,7 +8,7 @@ import pl.grizwold.microblog.model.Entry;
 
 import java.util.List;
 
-public class TagCounter implements StatisticsCollector {
+public class TagUsageCounter implements StatisticsCollector {
     private Ranking ranking = new SummingRanking();
 
     @Override
