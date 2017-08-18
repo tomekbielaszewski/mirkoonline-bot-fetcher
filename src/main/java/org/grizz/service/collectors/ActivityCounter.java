@@ -1,7 +1,7 @@
 package org.grizz.service.collectors;
 
 import lombok.ToString;
-import org.grizz.model.Configuration;
+import org.grizz.config.Configuration;
 import org.grizz.model.Statistics;
 import org.grizz.service.collectors.helpers.Ranking;
 import org.grizz.service.collectors.helpers.SummingRanking;
@@ -25,7 +25,7 @@ public class ActivityCounter implements StatisticsCollector {
         Stream<DatedAuthor> entryCommentsAuthors = getEntryCommentsAuthors(entries);
         Stream<DatedAuthor> entryCommentVotesAuthors = getEntryCommentVotesAuthors(entries);
 
-        DateTime timeOffset = DateTime.now().minusMinutes(configuration.getCountActivitiesSinceGivenAmountOfMinutes());
+        DateTime timeOffset = DateTime.now().minusMinutes(configuration.getCountLastMinutes());
 
         Stream.of(
                 entriesAuthors,

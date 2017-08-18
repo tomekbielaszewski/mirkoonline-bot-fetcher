@@ -1,7 +1,7 @@
 package org.grizz.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.grizz.model.Configuration;
+import org.grizz.config.Configuration;
 import org.grizz.model.Statistics;
 import org.grizz.model.repo.EntryRepository;
 import org.grizz.service.collectors.StatisticsCollector;

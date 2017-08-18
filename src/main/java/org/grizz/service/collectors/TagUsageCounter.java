@@ -1,6 +1,6 @@
 package org.grizz.service.collectors;
 
-import org.grizz.model.Configuration;
+import org.grizz.config.Configuration;
 import org.grizz.model.Statistics;
 import org.grizz.service.collectors.helpers.Ranking;
 import org.grizz.service.collectors.helpers.SummingRanking;
