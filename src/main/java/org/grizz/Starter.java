@@ -1,7 +1,7 @@
 package org.grizz;
 
-import org.grizz.config.ConfigurationParser;
 import org.grizz.config.Configuration;
+import org.grizz.config.ConfigurationParser;
 import org.grizz.model.Statistics;
 import org.grizz.model.properties.KeeperProperties;
 import org.grizz.service.MirkoonlineBot;
@@ -11,7 +11,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ConfigurableApplicationContext;
 import pl.grizwold.microblog.model.Entry;
 
-import java.util.List;
+import java.util.stream.Stream;
 
 @SpringBootApplication
 @EnableConfigurationProperties(KeeperProperties.class)
@@ -27,7 +27,7 @@ public class Starter {
     }
 
     private static void run(MirkoonlineBot mirkoonlineBot, Configuration configuration) {
-        List<Entry> entries = mirkoonlineBot.getEntries(configuration.getHoursOfHistory());
+        Stream<Entry> entries = mirkoonlineBot.getEntries(configuration.getHoursOfHistory());
         Statistics statistics = mirkoonlineBot.collectStatistics(entries, configuration);
         mirkoonlineBot.postResults(statistics);
     }

@@ -1,33 +1,37 @@
 package org.grizz.service.collectors;
 
+import com.beust.jcommander.internal.Maps;
 import com.google.common.collect.Lists;
 import lombok.Value;
 import org.grizz.config.Configuration;
-import org.grizz.model.Statistics;
 import org.springframework.stereotype.Component;
 import pl.grizwold.microblog.model.Entry;
 import pl.grizwold.microblog.model.User;
 import pl.grizwold.microblog.model.UserGroup;
 
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class AdminVotesCollector implements StatisticsCollector {
+    private Map<String, Object> stats = Maps.newHashMap();
+    private List<AdminVote> adminVotes = Lists.newArrayList();
+
     @Override
-    public void collect(List<Entry> entries, Statistics statistics, Configuration configuration) {
-        List<AdminVote> adminVotes = Lists.newArrayList();
-
-        entries.forEach(e -> e.getVoters().stream()
+    public void collect(Entry entry, Configuration configuration) {
+        entry.getVoters().stream()
                 .filter(this::isAdmin)
-                .forEach(v -> adminVotes.add(new AdminVote(e.getId(), null, v.getAuthor()))));
+                .forEach(v -> adminVotes.add(new AdminVote(entry.getId(), null, v.getAuthor())));
 
-        entries.stream()
-                .flatMap(e -> e.getComments().stream())
-                .forEach(c -> c.getVoters().stream()
-                        .filter(this::isAdmin)
-                        .forEach(v -> adminVotes.add(new AdminVote(c.getEntryId(), c.getId(), v.getAuthor()))));
+        entry.getComments().forEach(c -> c.getVoters().stream()
+                .filter(this::isAdmin)
+                .forEach(v -> adminVotes.add(new AdminVote(entry.getId(), c.getId(), v.getAuthor()))));
+    }
 
-        statistics.put("admin_votes", adminVotes);
+    @Override
+    public Map<String, Object> getStats() {
+        stats.put("admin_votes", adminVotes);
+        return stats;
     }
 
     private boolean isAdmin(User v) {

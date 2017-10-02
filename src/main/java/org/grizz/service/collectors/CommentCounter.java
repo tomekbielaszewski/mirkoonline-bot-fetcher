@@ -1,26 +1,30 @@
 package org.grizz.service.collectors;
 
+import com.google.common.collect.Maps;
 import org.grizz.config.Configuration;
-import org.grizz.model.Statistics;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 import pl.grizwold.microblog.model.Entry;
 
-import java.util.List;
-import java.util.function.Function;
+import java.util.Map;
 
 @Component
 public class CommentCounter implements StatisticsCollector {
+    private Map<String, Object> stats = Maps.newHashMap();
+    private int commentCount = 0;
+
     @Override
-    public void collect(List<Entry> entries, Statistics statistics, Configuration configuration) {
+    public void collect(Entry entry, Configuration configuration) {
         DateTime timeOffset = DateTime.now().minusMinutes(configuration.getCountLastMinutes());
 
-        long commentCount = entries.stream()
-                .map(e -> e.getComments().stream())
-                .flatMap(Function.identity())
+        commentCount += entry.getComments().stream()
                 .filter(c -> c.getDateAdded().isAfter(timeOffset))
                 .count();
+    }
 
-        statistics.put("comment_count", commentCount);
+    @Override
+    public Map<String, Object> getStats() {
+        stats.put("comment_count", commentCount);
+        return stats;
     }
 }

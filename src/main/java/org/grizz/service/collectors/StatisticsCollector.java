@@ -1,11 +1,12 @@
 package org.grizz.service.collectors;
 
 import org.grizz.config.Configuration;
-import org.grizz.model.Statistics;
 import pl.grizwold.microblog.model.Entry;
 
-import java.util.List;
+import java.util.Map;
 
 public interface StatisticsCollector {
-    void collect(List<Entry> entries, Statistics statistics, Configuration configuration);
+    void collect(Entry entry, Configuration configuration);
+
+    Map<String, Object> getStats();
 }

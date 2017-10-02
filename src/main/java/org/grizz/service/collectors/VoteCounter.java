@@ -1,29 +1,36 @@
 package org.grizz.service.collectors;
 
+import com.beust.jcommander.internal.Maps;
 import org.grizz.config.Configuration;
-import org.grizz.model.Statistics;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 import pl.grizwold.microblog.model.Entry;
 
-import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 @Component
 public class VoteCounter implements StatisticsCollector {
+    private Map<String, Object> stats = Maps.newHashMap();
+    private int voteCount;
+
     @Override
-    public void collect(List<Entry> entries, Statistics statistics, Configuration configuration) {
+    public void collect(Entry entry, Configuration configuration) {
         DateTime timeOffset = DateTime.now().minusMinutes(configuration.getCountLastMinutes());
 
-        long voteCount = Stream.of(
-                entries.stream().flatMap(e -> e.getVoters().stream()),
-                entries.stream().flatMap(e -> e.getComments().stream()).flatMap(c -> c.getVoters().stream())
+        voteCount += Stream.of(
+                entry.getVoters().stream(),
+                entry.getComments().stream().flatMap(c -> c.getVoters().stream())
         )
                 .flatMap(Function.identity())
                 .filter(v -> v.getDate().isAfter(timeOffset))
                 .count();
+    }
 
-        statistics.put("vote_count", voteCount);
+    @Override
+    public Map<String, Object> getStats() {
+        stats.put("vote_count", voteCount);
+        return stats;
     }
 }

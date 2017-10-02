@@ -8,9 +8,11 @@ import org.grizz.service.collectors.StatisticsCollector;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pl.grizwold.microblog.model.Entry;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -24,20 +26,20 @@ public class MirkoonlineBot {
     @Autowired
     private List<StatisticsCollector> collectors;
 
-    public List<Entry> getEntries(int scanEntriesSince) {
+    @Transactional(readOnly = true)
+    public Stream<Entry> getEntries(int scanEntriesSince) {
         DateTime now = DateTime.now();
         DateTime since = now.minusHours(scanEntriesSince);
 
-        log.info("Getting mikroblog entries since {}...", since);
-        List<Entry> entries = entryRepository.findByDateAddedGreaterThan(since);
-
-        log.info("Fetched {} entries.", entries.size());
+        log.info("Opening mikroblog entries stream since {}", since);
+        Stream<Entry> entries = entryRepository.findYoungerThan(since);
         return entries;
     }
 
-    public Statistics collectStatistics(List<Entry> entries, Configuration configuration) {
+    public Statistics collectStatistics(Stream<Entry> entries, Configuration configuration) {
         Statistics statistics = new Statistics();
-        collectors.forEach(collector -> collector.collect(entries, statistics, configuration));
+        entries.forEach(e -> collectors.forEach(collector -> collector.collect(e, configuration)));
+        collectors.forEach(collector -> statistics.put(collector.getStats()));
         return statistics;
     }
 

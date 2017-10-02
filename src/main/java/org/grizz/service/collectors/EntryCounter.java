@@ -1,23 +1,31 @@
 package org.grizz.service.collectors;
 
+import com.google.common.collect.Maps;
 import org.grizz.config.Configuration;
-import org.grizz.model.Statistics;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 import pl.grizwold.microblog.model.Entry;
 
-import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Component
 public class EntryCounter implements StatisticsCollector {
+    private Map<String, Object> stats = Maps.newHashMap();
+    private int entryCount = 0;
+
     @Override
-    public void collect(List<Entry> entries, Statistics statistics, Configuration configuration) {
+    public void collect(Entry entry, Configuration configuration) {
         DateTime timeOffset = DateTime.now().minusMinutes(configuration.getCountLastMinutes());
 
-        long entryCount = entries.stream()
+        Optional.of(entry)
                 .filter(e -> e.getDateAdded().isAfter(timeOffset))
-                .count();
+                .ifPresent(e -> entryCount++);
+    }
 
-        statistics.put("entry_count", entryCount);
+    @Override
+    public Map<String, Object> getStats() {
+        stats.put("entry_count", entryCount);
+        return stats;
     }
 }
